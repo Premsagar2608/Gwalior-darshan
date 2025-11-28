@@ -1,4 +1,10 @@
 {
+  "home": "Home",
+  "bookings": "Bookings",
+  "profile": "Profile",
+  "search": "Search",
   "settings": "Settings",
-  "language": "Change Language"
+  "language": "Language",
+  "about_app": "About App",
+  "no_bookings": "No bookings found."
 }

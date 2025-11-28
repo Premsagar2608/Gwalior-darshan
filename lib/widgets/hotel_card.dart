@@ -1,12 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../models/hotel_model.dart';
-import '../services/firebase_service.dart';
 
 class HotelCard extends StatelessWidget {
   final Hotel hotel;
   const HotelCard({super.key, required this.hotel});
 
+  // ✅ WhatsApp booking function (with BuildContext)
+  Future<void> _openWhatsApp(BuildContext context, Hotel hotel) async {
+    const phone = "919981863663";
+    final message = Uri.encodeComponent(
+        "Hello 👋, I would like to book a room at ${hotel.name} in Gwalior.");
+
+    final whatsappUri = Uri.parse("whatsapp://send?phone=$phone&text=$message");
+    final webUri = Uri.parse("https://wa.me/$phone?text=$message");
+
+    try {
+      if (await canLaunchUrl(whatsappUri)) {
+        await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+      } else if (await canLaunchUrl(webUri)) {
+        await launchUrl(webUri, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Unable to open WhatsApp. Please check installation."),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint("❌ WhatsApp launch error: $e");
+    }
+  }
+
+
+
+  // ✅ Open in Google Maps
   Future<void> _openInGoogleMaps() async {
     final url = Uri.parse(
         "https://www.google.com/maps/search/?api=1&query=${hotel.lat},${hotel.lng}(${Uri.encodeComponent(hotel.name)})");
@@ -15,118 +45,6 @@ class HotelCard extends StatelessWidget {
     } else {
       debugPrint("❌ Could not launch Google Maps");
     }
-  }
-
-  Future<void> _bookHotel(BuildContext context) async {
-    final TextEditingController nameCtrl = TextEditingController();
-    final TextEditingController checkInCtrl = TextEditingController();
-    final TextEditingController checkOutCtrl = TextEditingController();
-
-    // Helper to open date picker
-    Future<void> pickDate(BuildContext ctx, TextEditingController controller) async {
-      final DateTime? picked = await showDatePicker(
-        context: ctx,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(2023),
-        lastDate: DateTime(2030),
-        builder: (context, child) => Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF7B1E1E),
-              onPrimary: Colors.white,
-              onSurface: Color(0xFF7B1E1E),
-            ),
-          ),
-          child: child!,
-        ),
-      );
-      if (picked != null) {
-        controller.text = "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-      }
-    }
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: Text('Book ${hotel.name}',
-            style: const TextStyle(color: Color(0xFF7B1E1E))),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameCtrl,
-                decoration: const InputDecoration(
-                    labelText: 'Your Name', border: OutlineInputBorder()),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: checkInCtrl,
-                readOnly: true,
-                onTap: () => pickDate(ctx, checkInCtrl),
-                decoration: const InputDecoration(
-                  labelText: 'Check-in Date',
-                  border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.calendar_today_rounded),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: checkOutCtrl,
-                readOnly: true,
-                onTap: () => pickDate(ctx, checkOutCtrl),
-                decoration: const InputDecoration(
-                  labelText: 'Check-out Date',
-                  border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.calendar_today_rounded),
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-            onPressed: () => Navigator.pop(ctx),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7B1E1E),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () async {
-              if (nameCtrl.text.isNotEmpty &&
-                  checkInCtrl.text.isNotEmpty &&
-                  checkOutCtrl.text.isNotEmpty) {
-                await FirebaseService.addBooking(
-                  nameCtrl.text,
-                  hotel.name,
-                  checkInCtrl.text,
-                  checkOutCtrl.text,
-                );
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('✅ Booking successful!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('⚠️ Please fill all fields'),
-                    backgroundColor: Colors.orange,
-                  ),
-                );
-              }
-            },
-            child: const Text('Book Now'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -140,6 +58,7 @@ class HotelCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 🖼 Hotel image
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
             child: FadeInImage.assetNetwork(
@@ -155,6 +74,8 @@ class HotelCard extends StatelessWidget {
               ),
             ),
           ),
+
+          // 🏨 Hotel name, price, rating
           ListTile(
             title: Text(
               hotel.name,
@@ -169,35 +90,50 @@ class HotelCard extends StatelessWidget {
               style: const TextStyle(color: Colors.black54),
             ),
           ),
-          const SizedBox(height: 5),
+
+          const SizedBox(height: 2),
+
+          // 🔘 Buttons row
           Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.only(bottom: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                // ✅ WhatsApp booking button (smaller)
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFC5A020),
+                    backgroundColor: const Color(0xFF25D366),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 6), // smaller
+                    minimumSize: const Size(120, 36),
                   ),
-                  icon: const Icon(Icons.hotel, color: Colors.white),
+                  icon: const FaIcon(FontAwesomeIcons.whatsapp,
+                      color: Colors.white, size: 20),
                   label: const Text(
                     "Book Now",
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.white, fontSize: 13),
                   ),
-                  onPressed: () => _bookHotel(context),
+                  onPressed: () => _openWhatsApp(context, hotel),
                 ),
+
+                // 🗺 Open Google Maps
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Color(0xFF7B1E1E)),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 6),
+                    minimumSize: const Size(120, 36),
                   ),
-                  icon: const Icon(Icons.map, color: Color(0xFF7B1E1E)),
+                  icon: const Icon(Icons.map,
+                      color: Color(0xFF7B1E1E), size: 20),
                   label: const Text(
-                    "Open in Google Maps",
-                    style: TextStyle(color: Color(0xFF7B1E1E)),
+                    "Open in Maps",
+                    style: TextStyle(color: Color(0xFF7B1E1E), fontSize: 13),
                   ),
                   onPressed: _openInGoogleMaps,
                 ),

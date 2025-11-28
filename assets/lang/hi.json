@@ -1,4 +1,10 @@
 {
+  "home": "होम",
+  "bookings": "बुकिंग्स",
+  "profile": "प्रोफ़ाइल",
+  "search": "खोजें",
   "settings": "सेटिंग्स",
-  "language": "भाषा बदलें"
+  "language": "भाषा",
+  "about_app": "एप के बारे में",
+  "no_bookings": "कोई बुकिंग नहीं मिली।"
 }

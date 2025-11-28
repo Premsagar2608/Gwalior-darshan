@@ -4,34 +4,29 @@ import 'package:flutter/services.dart';
 
 class AppLocalizations {
   final Locale locale;
-  Map<String, String>? _localizedStrings;
 
   AppLocalizations(this.locale);
 
   static const LocalizationsDelegate<AppLocalizations> delegate =
   _AppLocalizationsDelegate();
 
+  Map<String, String>? _localizedStrings;
+
   Future<bool> load() async {
-    try {
-      String jsonString =
-      await rootBundle.loadString('assets/lang/${locale.languageCode}.json');
-      Map<String, dynamic> jsonMap = json.decode(jsonString);
-      _localizedStrings =
-          jsonMap.map((key, value) => MapEntry(key, value.toString()));
-      return true;
-    } catch (e) {
-      debugPrint('Error loading localization: $e');
-      return false;
-    }
+    final jsonString =
+    await rootBundle.loadString('assets/lang/${locale.languageCode}.json');
+    final Map<String, dynamic> jsonMap = json.decode(jsonString);
+    _localizedStrings =
+        jsonMap.map((key, value) => MapEntry(key, value.toString()));
+    return true;
   }
 
   String translate(String key) {
     return _localizedStrings?[key] ?? key;
   }
 
-  static AppLocalizations? of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
-  }
+  static AppLocalizations? of(BuildContext context) =>
+      Localizations.of<AppLocalizations>(context, AppLocalizations);
 }
 
 class _AppLocalizationsDelegate
@@ -39,12 +34,11 @@ class _AppLocalizationsDelegate
   const _AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) =>
-      ['en', 'hi'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => ['en', 'hi'].contains(locale.languageCode);
 
   @override
   Future<AppLocalizations> load(Locale locale) async {
-    AppLocalizations localizations = AppLocalizations(locale);
+    final localizations = AppLocalizations(locale);
     await localizations.load();
     return localizations;
   }
@@ -54,11 +48,11 @@ class _AppLocalizationsDelegate
 }
 
 class LocaleProvider extends ChangeNotifier {
-  Locale _locale = const Locale('en');
-  Locale get locale => _locale;
+  Locale? _locale;
+
+  Locale? get locale => _locale;
 
   void setLocale(Locale locale) {
-    if (!['en', 'hi'].contains(locale.languageCode)) return;
     _locale = locale;
     notifyListeners();
   }

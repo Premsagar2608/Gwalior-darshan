@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'home_screen.dart';
 
 class BookingScreen extends StatefulWidget {
   const BookingScreen({super.key});
@@ -20,25 +21,32 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Future<void> _fetchBookings() async {
-    final snapshot = await _db.get();
+    try {
+      final snapshot = await _db.get();
 
-    if (snapshot.exists) {
-      final data = Map<String, dynamic>.from(snapshot.value as Map);
-      _bookings = data.entries.map((entry) {
-        final value = Map<String, dynamic>.from(entry.value);
-        return {
-          "id": entry.key,
-          "name": value["name"] ?? "",
-          "hotel": value["hotel"] ?? "",
-          "checkIn": value["checkIn"] ?? "",
-          "checkOut": value["checkOut"] ?? "",
-        };
-      }).toList();
-    } else {
+      if (snapshot.exists) {
+        final data = Map<String, dynamic>.from(snapshot.value as Map);
+        _bookings = data.entries.map((entry) {
+          final value = Map<String, dynamic>.from(entry.value);
+          return {
+            "id": entry.key,
+            "name": value["name"] ?? "",
+            "hotel": value["hotel"] ?? "",
+            "checkIn": value["checkIn"] ?? "",
+            "checkOut": value["checkOut"] ?? "",
+          };
+        }).toList();
+      } else {
+        _bookings = [];
+      }
+    } catch (e) {
+      debugPrint("Error loading bookings: $e");
       _bookings = [];
     }
 
-    setState(() => _loading = false);
+    if (mounted) {
+      setState(() => _loading = false);
+    }
   }
 
   @override
@@ -46,16 +54,21 @@ class _BookingScreenState extends State<BookingScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Bookings"),
-        backgroundColor: const Color(0xFF7B1E1E),
+        backgroundColor: const Color(0xFF1746A2),
       ),
       body: _loading
           ? const Center(
-          child: CircularProgressIndicator(color: Color(0xFF7B1E1E)))
+        child: CircularProgressIndicator(color: Color(0xFF1746A2)),
+      )
           : _bookings.isEmpty
           ? const Center(
         child: Text(
           "No bookings found.",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey,
+          ),
         ),
       )
           : RefreshIndicator(
@@ -68,18 +81,19 @@ class _BookingScreenState extends State<BookingScreen> {
               margin: const EdgeInsets.all(12),
               color: const Color(0xFFFFF8E1),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)),
+                borderRadius: BorderRadius.circular(15),
+              ),
               elevation: 4,
-              shadowColor:
-              const Color(0xFF7B1E1E).withOpacity(0.3),
+              shadowColor: const Color(0xFF1746A2).withOpacity(0.3),
               child: ListTile(
                 leading: const Icon(Icons.hotel,
-                    color: Color(0xFF7B1E1E), size: 32),
+                    color: Color(0xFF1746A2), size: 32),
                 title: Text(
                   booking["hotel"],
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF7B1E1E)),
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1746A2),
+                  ),
                 ),
                 subtitle: Text(
                   "Guest: ${booking["name"]}\n"

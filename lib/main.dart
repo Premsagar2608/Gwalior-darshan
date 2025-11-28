@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:gwalior_darshan/screens/splash_screen.dart';
-import 'package:gwalior_darshan/services/localization_service.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'screens/splash_screen.dart';
+import 'services/localization_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  // ✅ Load the previously selected language (default: English)
   final prefs = await SharedPreferences.getInstance();
   final savedLang = prefs.getString('languageCode') ?? 'en';
 
@@ -21,7 +21,6 @@ class GwaliorDarshan extends StatefulWidget {
   final Locale initialLocale;
   const GwaliorDarshan({super.key, required this.initialLocale});
 
-  // ✅ This allows SettingsScreen to trigger language change dynamically
   static void setLocale(BuildContext context, Locale newLocale) {
     final _GwaliorDarshanState? state =
     context.findAncestorStateOfType<_GwaliorDarshanState>();
@@ -54,26 +53,15 @@ class _GwaliorDarshanState extends State<GwaliorDarshan> {
           return MaterialApp(
             title: 'Gwalior Darshan',
             debugShowCheckedModeBanner: false,
-
-            // 🏰 Royal Heritage Theme
             theme: ThemeData(
-              primaryColor: const Color(0xFF7B1E1E),
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: const Color(0xFFC5A020),
-                primary: const Color(0xFF7B1E1E),
-                secondary: const Color(0xFFC5A020),
-              ),
               fontFamily: 'Poppins',
-              scaffoldBackgroundColor: const Color(0xFFF5F0E6),
-              appBarTheme: const AppBarTheme(
-                backgroundColor: Color(0xFF7B1E1E),
-                foregroundColor: Colors.white,
-                centerTitle: true,
+              primaryColor: const Color(0xFF1746A2),
+              colorScheme: const ColorScheme.light(
+                primary: Color(0xFF1746A2),
+                secondary: Color(0xFFFFC93C),
               ),
             ),
-
-            // 🌐 Localization
-            locale: _locale,
+            locale: localeProvider.locale ?? _locale,
             supportedLocales: const [
               Locale('en'),
               Locale('hi'),
@@ -84,8 +72,7 @@ class _GwaliorDarshanState extends State<GwaliorDarshan> {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-
-            home: SplashScreen(),
+            home: const SplashScreen(),
           );
         },
       ),
