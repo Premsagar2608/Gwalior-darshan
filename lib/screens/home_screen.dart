@@ -88,48 +88,33 @@ class _HomeScreenState extends State<HomeScreen>
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFE3F2FD), Color(0xFF1746A2)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
+              color: const Color(0xFF1746A2),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ShaderMask(
-                    shaderCallback: (bounds) => const LinearGradient(
-                      colors: [Color(0xFF000000), Color(0xFFFFC93C)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ).createShader(bounds),
-                    child: Text(
-                      loc?.translate('Gwalior Darshan') ?? "Gwalior Darshan",
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 0.8,
-                      ),
+                  Text(
+                    loc?.translate('Gwalior Darshan') ?? "Gwalior Darshan",
+                    style: const TextStyle(
+                      fontSize: 23,
+                      fontFamily: 'Mainfont',
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                      letterSpacing: 0.9,
                     ),
                   ),
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.search_outlined,
-                            color: Colors.white),
+                        icon: const Icon(Icons.search_outlined, color: Colors.white),
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (_) => const SearchScreen()),
+                            MaterialPageRoute(builder: (_) => const SearchScreen()),
                           );
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.help_outline,
-                            color: Colors.white),
+                        icon: const Icon(Icons.help_outline, color: Colors.white),
                         onPressed: () {
                           showDialog(
                             context: context,
@@ -151,6 +136,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ],
               ),
+
             ),
 
             const SizedBox(height: 10),
@@ -289,9 +275,36 @@ class _HomeScreenState extends State<HomeScreen>
             ? _emptyState()
             : _buildList(_hotels.map((e) => HotelCard(hotel: e)).toList());
       case 'Food':
-        return _food.isEmpty
-            ? _emptyState()
-            : _buildList(_food.map((f) => _foodCard(f)).toList());
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.restaurant_menu, size: 60, color: Color(0xFF1746A2)),
+                SizedBox(height: 12),
+                Text(
+                  "🍴 Coming Soon!",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1746A2),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  "Exciting food destinations are being added soon.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+
       case 'All':
       // show only category summary cards (one per category)
         final List<Map<String, dynamic>> categoryCards = [
