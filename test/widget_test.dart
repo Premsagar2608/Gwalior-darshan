@@ -7,13 +7,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gwalior_darshan/screens/splash_screen.dart';
 
 import 'package:gwalior_darshan/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('Renders SplashScreen on app start', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const GwaliorDarshan());
+    await tester.pumpWidget(const GwaliorDarshan(initialLocale: Locale('en')));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

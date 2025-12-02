@@ -13,5 +13,5 @@ class Hotel {
         required this.price,
         required this.imageUrl,
         required this.lat,
-        required this.lng});
+        required this.lng, required String id});
 }

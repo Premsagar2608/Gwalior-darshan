@@ -10,6 +10,7 @@ class FoodDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(food['name']),
         backgroundColor: const Color(0xFF1746A2),
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

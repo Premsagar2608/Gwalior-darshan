@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:gwalior_darshan/screens/place_detail_screen.dart';
+import 'package:gwalior_darshan/screens/destination/place_detail_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import '../models/destination_model.dart';
 import '../models/hotel_model.dart';
 import '../screens/search_screen.dart';
-import '../screens/settings_screen.dart';
-import '../screens/booking_screen.dart';
+import 'setting/settings_screen.dart';
+import '../screens/favorites_screen.dart';
 import '../services/firebase_service.dart';
 import '../services/localization_service.dart';
 import '../widgets/food_card.dart';
 import '../widgets/heritage_card.dart';
 import '../widgets/hotel_card.dart';
-import 'food_detail_screen.dart';
-import 'hotel_detail_screen.dart';
+import 'food/food_detail_screen.dart';
+import 'hotel/hotel_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -62,6 +62,10 @@ class _HomeScreenState extends State<HomeScreen>
             "desc": "Authentic North Indian cuisine"
           },
         ];
+        // 🔥 SHUFFLE LISTS
+        _places.shuffle();
+        _hotels.shuffle();
+        _food.shuffle();
         _loading = false;
       });
     } catch (e) {
@@ -77,70 +81,61 @@ class _HomeScreenState extends State<HomeScreen>
     final localeProvider = Provider.of<LocaleProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F8),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1746A2),
+        title: Text(
+          loc?.translate('Gwalior Darshan') ?? "Gwalior Darshan",
+          style: const TextStyle(
+            fontSize: 23,
+            fontFamily: 'Mainfont',
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+            letterSpacing: 0.9,
+          ),
+        ),
+
+        // RIGHT SIDE ICONS
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search_outlined, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SearchScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.help_outline, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text("Help & Support"),
+                  content: const Text(
+                    "For queries, contact support@gwaliordarshan.in",
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("Close"),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+
+        backgroundColor: const Color(0xFFF4F6F8),
 
       // ✅ BODY
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🌅 Gradient Header
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
-              color: const Color(0xFF1746A2),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text(
-                    loc?.translate('Gwalior Darshan') ?? "Gwalior Darshan",
-                    style: const TextStyle(
-                      fontSize: 23,
-                      fontFamily: 'Mainfont',
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                      letterSpacing: 0.9,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.search_outlined, color: Colors.white),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const SearchScreen()),
-                          );
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.help_outline, color: Colors.white),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: const Text("Help & Support"),
-                              content: const Text(
-                                  "For queries, contact support@gwaliordarshan.in"),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text("Close"),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-            ),
-
             const SizedBox(height: 10),
-
             // 🏷 Category Chips
             SizedBox(
               height: 45,
@@ -194,6 +189,12 @@ class _HomeScreenState extends State<HomeScreen>
 
             // 🌍 Dynamic Category View
             Expanded(
+              child: RefreshIndicator(
+                color: Color(0xFF1746A2),
+                onRefresh: () async {
+                  setState(() => _loading = true);
+                  await _fetchData();   // Re-fetch + shuffle
+                },
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 400),
                 transitionBuilder: (child, anim) => FadeTransition(
@@ -210,6 +211,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ? _buildShimmer()
                     : _buildCategoryContent(_categories[_selectedIndex]),
               ),
+            ),
             ),
           ],
         ),
@@ -229,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen>
               break;
             case 2:
               Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const BookingScreen()));
+                  MaterialPageRoute(builder: (_) => const FavoritesScreen()));
               break;
             case 3:
               Navigator.push(context,
@@ -240,15 +242,15 @@ class _HomeScreenState extends State<HomeScreen>
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.home),
-            label: loc?.translate('home') ?? 'Home',
+            label: loc?.translate('hotel') ?? 'Home',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.search_outlined),
             label: loc?.translate('search') ?? 'Search',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.book_online),
-            label: loc?.translate('bookings') ?? 'Bookings',
+            icon: const Icon(Icons.favorite),
+            label: loc?.translate('favourites') ?? 'favourites',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.person_2),

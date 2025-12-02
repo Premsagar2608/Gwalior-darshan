@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../main.dart';
+
 class AppLocalizations {
   final Locale locale;
 
@@ -27,6 +29,15 @@ class AppLocalizations {
 
   static AppLocalizations? of(BuildContext context) =>
       Localizations.of<AppLocalizations>(context, AppLocalizations);
+}
+class LocalizationService {
+  // Change app locale everywhere
+  static void updateLanguage(BuildContext context, String langCode) {
+    Locale newLocale = Locale(langCode);
+
+    // Call main.dart -> setLocale()
+    GwaliorDarshan.setLocale(context, newLocale);
+  }
 }
 
 class _AppLocalizationsDelegate

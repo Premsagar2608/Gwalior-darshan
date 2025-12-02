@@ -79,7 +79,7 @@ class _DestinationScreenState extends State<DestinationScreen> {
                       },
                     ),
                     ElevatedButton.icon(
-                      icon: const Icon(Icons.cloud, color: Colors.white),
+                      icon: const Icon(Icons.read_more, color: Colors.white),
                       label: const Text("Weather"),
                       style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0066FF)),

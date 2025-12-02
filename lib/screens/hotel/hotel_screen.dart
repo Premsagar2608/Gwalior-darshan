@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/hotel_model.dart';
-import '../services/firebase_service.dart';
-import '../widgets/hotel_card.dart';
+import '../../models/hotel_model.dart';
+import '../../services/firebase_service.dart';
+import '../../widgets/hotel_card.dart';
 
 class HotelScreen extends StatefulWidget {
   const HotelScreen({super.key});
@@ -45,6 +45,7 @@ class _HotelScreenState extends State<HotelScreen> {
       appBar: AppBar(
         title: const Text("Hotels in Gwalior"),
         backgroundColor: const Color(0xFF7B1E1E),
+        foregroundColor: Colors.white,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
